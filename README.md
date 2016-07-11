@@ -14,7 +14,7 @@ See the license file for license rights and limitations (MIT).
 ## Installation
 
 gbdxtools4j *requires* Java 8 at this time.  Maven 3 is also a prerequsite.  Once you have
-that installed you can build gbdxtoll4j
+that installed you can build gbdxtools4j
 
 Clone this repository and do a
 
@@ -136,7 +136,7 @@ public class CreateTaskFluent {
 
 It is important to note a stylistic issue in the code above.  The gbdxtools4j library allows for
 two different programming styles.  The one shown above is known as a <a href="https://en.wikipedia.org/wiki/Fluent_interface">Fluent interface</a>
-and allows chaining of methods.  Additionally, gbdxtools allows for a someone more standard "set/get" interface
+and allows chaining of methods.  Additionally, gbdxtools4j allows for a somewhat more standard "set/get" interface
 too:
 
 ```java
@@ -193,7 +193,7 @@ public class CreateTaskSetter {
 }
 ```
 
-These two examples for creating tasks work exactly the same.  The implmentation style is up to
+These two examples for creating tasks work exactly the same.  The implementation style is up to
 you.
 
 The full list of methods available to the workflow system is defined in src/main/java/com/digitalglobe/gbdx/tools/workflow/WorkflowManager.
