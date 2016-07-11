@@ -10,6 +10,10 @@ Example scripts can be found under the src/test/java directory of this repo.
 
 See the license file for license rights and limitations (MIT).
 
+**IMPORTANT SAFTEY NOTE** gbdxtools4j is very much in development right now.  There is much more work to
+do but this is a start at getting a Java version of the excellent <a href="https://github.com/DigitalGlobe/gbdxtools">gbdxtools</a>
+for the Python world.
+
 
 ## Installation
 
