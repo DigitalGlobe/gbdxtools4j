@@ -165,7 +165,7 @@ public class CommunicationBase {
      * @throws InternalError if we are unable to setup the SSL "don't validate" HttpClient
      *
      */
-    private CloseableHttpClient getHttpClient() {
+    protected CloseableHttpClient getHttpClient() {
         if (configurationManager.getEnvironment() != null) {
             try {
                 SSLContextBuilder sslContextBuilder = new SSLContextBuilder();

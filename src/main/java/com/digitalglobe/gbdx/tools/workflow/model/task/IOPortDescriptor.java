@@ -11,7 +11,7 @@ import com.google.gson.annotations.SerializedName;
  * Contains the information for an input port to a GBDX task.
  */
 @Generated("org.jsonschema2pojo")
-public class InputPortDescriptor {
+public class IOPortDescriptor {
 
     /**
      * A description of the port.
@@ -79,7 +79,7 @@ public class InputPortDescriptor {
      *
      * @return Returns a reference to this object so that method calls can be chained together.
      */
-    public InputPortDescriptor withDescription(String description) {
+    public IOPortDescriptor withDescription(String description) {
         this.description = description;
         return this;
     }
@@ -115,7 +115,7 @@ public class InputPortDescriptor {
      *
      * @return Returns a reference to this object so that method calls can be chained together.
      */
-    public InputPortDescriptor withName(String name) {
+    public IOPortDescriptor withName(String name) {
         this.name = name;
         return this;
     }
@@ -149,7 +149,7 @@ public class InputPortDescriptor {
      * @return Returns a reference to this object so that method calls can be chained together.
      *
      */
-    public InputPortDescriptor withRequired(Boolean required) {
+    public IOPortDescriptor withRequired(Boolean required) {
         this.required = required;
         return this;
     }
@@ -185,7 +185,7 @@ public class InputPortDescriptor {
      *
      * @return Returns a reference to this object so that method calls can be chained together.
      */
-    public InputPortDescriptor withType(String type) {
+    public IOPortDescriptor withType(String type) {
         this.type = type;
         return this;
     }
@@ -218,7 +218,7 @@ public class InputPortDescriptor {
      *
      * @return Returns a reference to this object so that method calls can be chained together.
      */
-    public InputPortDescriptor withMultiplex(Boolean multiplex) {
+    public IOPortDescriptor withMultiplex(Boolean multiplex) {
         this.multiplex = multiplex;
         return this;
     }

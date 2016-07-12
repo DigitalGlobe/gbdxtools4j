@@ -5,8 +5,7 @@ import java.io.IOException;
 import com.digitalglobe.gbdx.tools.workflow.WorkflowManager;
 import com.digitalglobe.gbdx.tools.workflow.model.task.ContainerDescriptor;
 import com.digitalglobe.gbdx.tools.workflow.model.task.ContainerProperties;
-import com.digitalglobe.gbdx.tools.workflow.model.task.InputPortDescriptor;
-import com.digitalglobe.gbdx.tools.workflow.model.task.OutputPortDescriptor;
+import com.digitalglobe.gbdx.tools.workflow.model.task.IOPortDescriptor;
 import com.digitalglobe.gbdx.tools.workflow.model.task.Task;
 
 
@@ -26,7 +25,7 @@ public class CreateTaskSetter {
         containerDescriptor.setContainerProperties( containerProperties );
         sampleTask.getContainerDescriptors().add(containerDescriptor);
 
-        InputPortDescriptor inputPortDescriptor = new InputPortDescriptor();
+        IOPortDescriptor inputPortDescriptor = new IOPortDescriptor();
         inputPortDescriptor.setDescription("this is the description");
         inputPortDescriptor.setRequired(true);
         inputPortDescriptor.setName("inputparameter1");
@@ -34,7 +33,7 @@ public class CreateTaskSetter {
 
         sampleTask.getInputPortDescriptors().add(inputPortDescriptor);
 
-        OutputPortDescriptor outputPortDescriptor = new OutputPortDescriptor();
+        IOPortDescriptor outputPortDescriptor = new IOPortDescriptor();
         outputPortDescriptor.setType("string");
         outputPortDescriptor.setName("outputparameter1");
         outputPortDescriptor.setRequired(true);

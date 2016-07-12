@@ -8,7 +8,6 @@ import javax.annotation.Generated;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 /**
  * The definition of a GBDX Task
@@ -21,21 +20,18 @@ public class Task {
      * (Required)
      * 
      */
-    @SerializedName("inputPortDescriptors")
     @Expose
-    private List<InputPortDescriptor> inputPortDescriptors = new ArrayList<>();
+    private List<IOPortDescriptor> inputPortDescriptors = new ArrayList<>();
     /**
      * The ports that are output by the task.
      * 
      */
-    @SerializedName("outputPortDescriptors")
     @Expose
-    private List<OutputPortDescriptor> outputPortDescriptors = new ArrayList<>();
+    private List<IOPortDescriptor> outputPortDescriptors = new ArrayList<>();
     /**
      * A human-readable description of the function performed by this task.
      * 
      */
-    @SerializedName("description")
     @Expose
     private String description;
     /**
@@ -43,7 +39,6 @@ public class Task {
      * (Required)
      * 
      */
-    @SerializedName("containerDescriptors")
     @Expose
     private List<ContainerDescriptor> containerDescriptors = new ArrayList<>();
     /**
@@ -51,7 +46,6 @@ public class Task {
      * (Required)
      * 
      */
-    @SerializedName("name")
     @Expose
     private String name;
     /**
@@ -59,21 +53,18 @@ public class Task {
      * (Optional)
      *
      */
-    @SerializedName("callback")
     @Expose
     private String callback;
     /**
      * Additional properties of the task.
      * 
      */
-    @SerializedName("properties")
     @Expose
     private TaskProperties properties;
 
     /**
      * The task type
      */
-    @SerializedName("taskType")
     @Expose
     private String taskType;
 
@@ -84,7 +75,7 @@ public class Task {
      * @return
      *     The inputPortDescriptors
      */
-    public List<InputPortDescriptor> getInputPortDescriptors() {
+    public List<IOPortDescriptor> getInputPortDescriptors() {
         return inputPortDescriptors;
     }
 
@@ -95,7 +86,7 @@ public class Task {
      * @param inputPortDescriptors
      *     The inputPortDescriptors
      */
-    public void setInputPortDescriptors(List<InputPortDescriptor> inputPortDescriptors) {
+    public void setInputPortDescriptors(List<IOPortDescriptor> inputPortDescriptors) {
         this.inputPortDescriptors = inputPortDescriptors;
     }
 
@@ -108,7 +99,7 @@ public class Task {
      *
      * @return Returns a reference to this object so that method calls can be chained together.
      */
-    public Task withInputPortDescriptors(List<InputPortDescriptor> inputPortDescriptors) {
+    public Task withInputPortDescriptors(List<IOPortDescriptor> inputPortDescriptors) {
         this.inputPortDescriptors = inputPortDescriptors;
         return this;
     }
@@ -119,7 +110,7 @@ public class Task {
      * @return
      *     The outputPortDescriptors
      */
-    public List<OutputPortDescriptor> getOutputPortDescriptors() {
+    public List<IOPortDescriptor> getOutputPortDescriptors() {
         return outputPortDescriptors;
     }
 
@@ -129,7 +120,7 @@ public class Task {
      * @param outputPortDescriptors
      *     The outputPortDescriptors
      */
-    public void setOutputPortDescriptors(List<OutputPortDescriptor> outputPortDescriptors) {
+    public void setOutputPortDescriptors(List<IOPortDescriptor> outputPortDescriptors) {
         this.outputPortDescriptors = outputPortDescriptors;
     }
 
@@ -141,7 +132,7 @@ public class Task {
      *
      * @return Returns a reference to this object so that method calls can be chained together.
      */
-    public Task withOutputPortDescriptors(List<OutputPortDescriptor> outputPortDescriptors) {
+    public Task withOutputPortDescriptors(List<IOPortDescriptor> outputPortDescriptors) {
         this.outputPortDescriptors = outputPortDescriptors;
         return this;
     }

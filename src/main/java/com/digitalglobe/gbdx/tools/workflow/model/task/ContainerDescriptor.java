@@ -20,7 +20,6 @@ public class ContainerDescriptor {
      * The command used to launch the container.
      * 
      */
-    @SerializedName("command")
     @Expose
     private String command;
     /**
@@ -28,7 +27,6 @@ public class ContainerDescriptor {
      * (Required)
      * 
      */
-    @SerializedName("properties")
     @Expose
     private ContainerProperties containerProperties;
     /**
@@ -36,7 +34,6 @@ public class ContainerDescriptor {
      * (Required)
      * 
      */
-    @SerializedName("type")
     @Expose
     private ContainerDescriptor.Type type;
 

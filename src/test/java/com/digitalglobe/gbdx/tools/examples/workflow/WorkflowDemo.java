@@ -7,8 +7,7 @@ import com.digitalglobe.gbdx.tools.workflow.WorkflowManager;
 import com.digitalglobe.gbdx.tools.workflow.model.Workflow;
 import com.digitalglobe.gbdx.tools.workflow.model.task.ContainerDescriptor;
 import com.digitalglobe.gbdx.tools.workflow.model.task.ContainerProperties;
-import com.digitalglobe.gbdx.tools.workflow.model.task.InputPortDescriptor;
-import com.digitalglobe.gbdx.tools.workflow.model.task.OutputPortDescriptor;
+import com.digitalglobe.gbdx.tools.workflow.model.task.IOPortDescriptor;
 import com.digitalglobe.gbdx.tools.workflow.model.task.Task;
 
 
@@ -35,13 +34,13 @@ public class WorkflowDemo {
                                                                      .withDomain("raid")
                                                                      .withImage( "tdgp/aop:latest")));
 
-        sdTask.getInputPortDescriptors().add( new InputPortDescriptor()
+        sdTask.getInputPortDescriptors().add( new IOPortDescriptor()
                                                     .withDescription("this is the description")
                                                     .withRequired(true)
                                                     .withName("sdinputparameter")
                                                     .withType("string") );
 
-        sdTask.getOutputPortDescriptors().add( new OutputPortDescriptor()
+        sdTask.getOutputPortDescriptors().add( new IOPortDescriptor()
                                                     .withType("string")
                                                     .withName("sdoutputparameter")
                                                     .withRequired(true)

@@ -5,8 +5,7 @@ import java.io.IOException;
 import com.digitalglobe.gbdx.tools.workflow.WorkflowManager;
 import com.digitalglobe.gbdx.tools.workflow.model.task.ContainerDescriptor;
 import com.digitalglobe.gbdx.tools.workflow.model.task.ContainerProperties;
-import com.digitalglobe.gbdx.tools.workflow.model.task.InputPortDescriptor;
-import com.digitalglobe.gbdx.tools.workflow.model.task.OutputPortDescriptor;
+import com.digitalglobe.gbdx.tools.workflow.model.task.IOPortDescriptor;
 import com.digitalglobe.gbdx.tools.workflow.model.task.Task;
 
 
@@ -22,13 +21,13 @@ public class CreateTaskFluent {
                                                                      .withDomain("something")
                                                                      .withImage( "mydocker/myimage")));
 
-        sampleTask.getInputPortDescriptors().add( new InputPortDescriptor()
+        sampleTask.getInputPortDescriptors().add( new IOPortDescriptor()
                                                     .withDescription("this is the description")
                                                     .withRequired(true)
                                                     .withName("inputparameter1")
                                                     .withType("string") );
 
-        sampleTask.getOutputPortDescriptors().add( new OutputPortDescriptor()
+        sampleTask.getOutputPortDescriptors().add( new IOPortDescriptor()
                                                     .withType("string")
                                                     .withName("outputparameter1")
                                                     .withRequired(true)

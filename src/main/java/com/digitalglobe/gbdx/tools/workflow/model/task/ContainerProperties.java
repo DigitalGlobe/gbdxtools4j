@@ -4,7 +4,6 @@ import javax.annotation.Generated;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 /**
  * Container descriptor properties
@@ -18,14 +17,12 @@ public class ContainerProperties {
      * (Required)
      *
      */
-    @SerializedName("image")
     @Expose
     private String image;
     /**
      * Identifies the worker domain/group/collective under which to run.
      *
      */
-    @SerializedName("domain")
     @Expose
     private String domain;
 

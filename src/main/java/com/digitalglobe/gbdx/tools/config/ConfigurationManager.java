@@ -15,12 +15,14 @@ import org.slf4j.LoggerFactory;
 public class ConfigurationManager {
     private static final Logger log = LoggerFactory.getLogger( ConfigurationManager.class );
 
-    private String authUrl = "https://geobigdata.io/auth/v1/oauth/token/";
+    private String authUrl = null;
     private String userName = null;
     private String password = null;
     private String clientId = null;
     private String clientSecret = null;
     private String environment = null;
+
+    private static final String DEFAULT_AUTH_URL = "https://geobigdata.io/auth/v1/oauth/token/";
 
 
     /**
@@ -52,7 +54,8 @@ public class ConfigurationManager {
 
         if (configFile.exists() && configFile.canRead()) {
             try (FileInputStream fis = new FileInputStream(configFile)) {
-                Ini ini = new Ini(fis);
+                Ini ini = new Ini();
+                ini.load(fis);
                 Ini.Section section = ini.get("gbdx");
                 if (section != null) {
                     authUrl = section.get("auth_url");
@@ -71,12 +74,27 @@ public class ConfigurationManager {
             }
         }
 
-        authUrl = getEnvOrSystemVar("GBDX_AUTH_URL", authUrl);
+        authUrl = getEnvOrSystemVar("GBDX_AUTH_URL", DEFAULT_AUTH_URL);
         userName = getEnvOrSystemVar("GBDX_USERNAME", userName);
         password = getEnvOrSystemVar("GBDX_PASSWORD", password);
         clientId = getEnvOrSystemVar("GBDX_CLIENT_ID", clientId);
         clientSecret = getEnvOrSystemVar("GBDX_CLIENT_SECRET", clientSecret);
         environment = getEnvOrSystemVar("ENVIRONMENT", environment);
+
+        if( authUrl == null )
+            throw new IllegalStateException("no authorization url configured");
+
+        if( userName == null )
+            throw new IllegalStateException("no user name configured");
+
+        if( password == null )
+            throw new IllegalStateException("no password configured");
+
+        if( clientId == null )
+            throw new IllegalStateException("no client id configured");
+
+        if( clientSecret == null )
+            throw new IllegalStateException("no client secret configured");
     }
 
     /**
