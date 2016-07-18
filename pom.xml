@@ -3,7 +3,7 @@
 
     <groupId>com.digitalglobe.gbdx.tools</groupId>
     <artifactId>gbdxtools4j</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -34,7 +34,7 @@
 
     <scm>
         <connection>scm:git:git://github.com/digitalglobe/gbdxtools4j.git</connection>
-        <developerConnection>scm:git:ssh://github.com:digitalglobe/gbdxtools4j.git</developerConnection>
+        <developerConnection>scm:git:git://github.com/digitalglobe/gbdxtools4j.git</developerConnection>
         <url>https://github.com/DigitalGlobe/gbdxtools4j</url>
       <tag>gbdxtools4j-1.0.1</tag>
   </scm>
