@@ -2,12 +2,12 @@ package com.digitalglobe.gbdx.tools.auth;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.google.gson.Gson;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -45,7 +45,7 @@ public class GBDXAuthManager {
             post.setEntity(new UrlEncodedFormEntity(parametersBody));
 
             post.addHeader("Authorization",
-                    "Basic " + Base64.getEncoder().encodeToString((configurationManager.getClientId()
+                    "Basic " + Base64.encodeBase64String((configurationManager.getClientId()
                              + ":" + configurationManager.getClientSecret()).getBytes()));
 
             try( CloseableHttpResponse response = httpclient.execute(post)) {
