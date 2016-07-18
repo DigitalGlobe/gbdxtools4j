@@ -6,6 +6,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
 
 import com.digitalglobe.gbdx.tools.auth.GBDXAuthManager;
 import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
@@ -165,19 +166,26 @@ public class CommunicationBase {
      * @throws InternalError if we are unable to setup the SSL "don't validate" HttpClient
      *
      */
-    protected CloseableHttpClient getHttpClient() {
-        if (configurationManager.getEnvironment() != null) {
+    private CloseableHttpClient getHttpClient() {
+        if (!configurationManager.runningInProduction()) {
             try {
                 SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
                 sslContextBuilder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-                HostnameVerifier hostnameVerifierAllowAll = (hostname, session) -> true;
+             //   HostnameVerifier hostnameVerifierAllowAll = (hostname, session) -> true;
+                HostnameVerifier hostnameVerifierAllowAll = new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession sslSession) {
+                        return true;
+                    }
+                };
+
                 SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build(),
                         hostnameVerifierAllowAll);
                 return HttpClients.custom()
                         .setSSLSocketFactory(sslSocketFactory)
                         .build();
             } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
-                throw new InternalError( "Can't setup fake SSL verifier", e);
+                throw new RuntimeException( "Can't setup fake SSL verifier", e);
             }
         } else {
             return HttpClientBuilder.create().build();

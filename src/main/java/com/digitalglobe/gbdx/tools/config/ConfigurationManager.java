@@ -177,6 +177,17 @@ public class ConfigurationManager {
     }
 
     /**
+     * Gets a boolean to tell us if we're running in production or not.  This is determined
+     * by seeing if the environment is set.  If so, we're not in production.  If not, we're
+     * in production.
+     *
+     * @return boolean that, if true, we're running in production
+     */
+    public boolean runningInProduction() {
+        return environment == null;
+    }
+
+    /**
      * Convenience method to get a parameter from a system property, the O/S environment
      * or from the default value.  The order of precedence is:
      * <ol>
