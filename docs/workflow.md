@@ -155,4 +155,4 @@ public class CreateTaskSetter {
 These two examples for creating tasks work exactly the same.  The implementation style is up to
 you.
 
-The full list of methods available to the workflow system is defined in src/main/java/com/digitalglobe/gbdx/tools/workflow/WorkflowManager.
+The full list of methods available to the workflow system is defined in <a href="../src/main/java/com/digitalglobe/gbdx/tools/workflow/WorkflowManager.java">the Workflow Manager</a>
