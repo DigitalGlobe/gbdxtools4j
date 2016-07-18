@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.util.List;
 
 import com.digitalglobe.gbdx.tools.communication.CommunicationBase;
-import com.digitalglobe.gbdx.tools.workflow.model.task.Task;
+import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.digitalglobe.gbdx.tools.workflow.model.TaskList;
 import com.digitalglobe.gbdx.tools.workflow.model.Workflow;
 import com.digitalglobe.gbdx.tools.workflow.model.WorkflowList;
-import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
+import com.digitalglobe.gbdx.tools.workflow.model.task.Task;
 import com.google.gson.Gson;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,16 +21,12 @@ import org.slf4j.LoggerFactory;
 public class WorkflowManager extends CommunicationBase {
     private static final Logger log = LoggerFactory.getLogger(WorkflowManager.class);
 
-    private static String baseUrl = "https://geobigdata.io/workflows/v1";
+    private static String baseUrl;
 
     public WorkflowManager() {
         ConfigurationManager configurationManager = new ConfigurationManager();
 
-        String env = StringUtils.trimToNull(configurationManager.getEnvironment());
-
-        if (env != null) {
-            baseUrl = "https://" + env + ".geobigdata.io/workflows/v1";
-        }
+        baseUrl = configurationManager.getBaseAPIUrl() + "/workflows/v1";
     }
 
     /**

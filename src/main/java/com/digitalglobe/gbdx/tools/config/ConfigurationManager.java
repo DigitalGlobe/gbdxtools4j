@@ -22,7 +22,9 @@ public class ConfigurationManager {
     private String clientSecret = null;
     private String environment = null;
 
-    private static final String DEFAULT_AUTH_URL = "https://geobigdata.io/auth/v1/oauth/token/";
+    private static final String DEFAULT_BASE_URL = "https://geobigdata.io";
+    private static final String DEFAULT_AUTH_URL = DEFAULT_BASE_URL + "/auth/v1/oauth/token/";
+    private static final String CONFIG_SECTION_NAME = "gbdx";
 
 
     /**
@@ -41,6 +43,12 @@ public class ConfigurationManager {
      * All of these values come from the GBDX web application.
      * </p>
      *
+     * <p>
+     * Note that you can have a configuration section per environment if you'd like.  The
+     * configuration name would be "gbdx-environment" where the environment part can be
+     * set in the O/S environment or with a -D on the command line.
+     * </p>
+     *
      * <p>If the configuration file does not exist then the parameters can also come from
      * the operating system environment (i.e. <code>setenv</code>) and/or from Java system
      * parameters (i.e. -D parameters on the Java command line).  Even if the file exists
@@ -52,11 +60,24 @@ public class ConfigurationManager {
         File configFile = new File(System.getProperty("user.home") +
                 System.getProperty("file.separator") + ".gbdx-config");
 
+        environment = getEnvOrSystemVar("ENVIRONMENT", environment);
+
         if (configFile.exists() && configFile.canRead()) {
             try (FileInputStream fis = new FileInputStream(configFile)) {
                 Ini ini = new Ini();
                 ini.load(fis);
-                Ini.Section section = ini.get("gbdx");
+
+                String configSection;
+                if( environment != null )
+                    configSection = CONFIG_SECTION_NAME + environment;
+                else
+                    configSection = CONFIG_SECTION_NAME;
+
+                Ini.Section section = ini.get(configSection);
+
+                if( section == null )
+                    section = ini.get(CONFIG_SECTION_NAME);
+
                 if (section != null) {
                     authUrl = section.get("auth_url");
                     userName = section.get("user_name");
@@ -79,7 +100,6 @@ public class ConfigurationManager {
         password = getEnvOrSystemVar("GBDX_PASSWORD", password);
         clientId = getEnvOrSystemVar("GBDX_CLIENT_ID", clientId);
         clientSecret = getEnvOrSystemVar("GBDX_CLIENT_SECRET", clientSecret);
-        environment = getEnvOrSystemVar("ENVIRONMENT", environment);
 
         if( authUrl == null )
             throw new IllegalStateException("no authorization url configured");
@@ -143,13 +163,17 @@ public class ConfigurationManager {
         return clientSecret;
     }
 
+
     /**
-     * Get the current operating environment.
+     * Gets the base part of the URL we'll use for communicating, taking account of the environment.
      *
-     * @return the environment
+     * @return the base url.
      */
-    public String getEnvironment() {
-        return environment;
+    public String getBaseAPIUrl() {
+        if (environment != null)
+            return "https://" + environment + ".geobigdata.io";
+
+        return DEFAULT_BASE_URL;
     }
 
     /**

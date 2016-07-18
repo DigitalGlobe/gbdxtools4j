@@ -11,26 +11,20 @@ import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.google.gson.Gson;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
- * Manages the interface with the workflow system.
+ * Manages the interface with the catalog system.
  */
 public class CatalogManager extends CommunicationBase {
-    private static final Logger log = LoggerFactory.getLogger(CatalogManager.class);
 
-    private static String baseUrl = "https://geobigdata.io/catalog/v1";
+    private static String baseUrl;
+
 
     public CatalogManager() {
         ConfigurationManager configurationManager = new ConfigurationManager();
 
-        String env = configurationManager.getEnvironment();
-
-        if (env != null) {
-            baseUrl = "https://" + env + ".geobigdata.io/catalog/v1";
-        }
+        baseUrl = configurationManager.getBaseAPIUrl() + "/catalog/v1";
     }
 
     /**
@@ -52,6 +46,15 @@ public class CatalogManager extends CommunicationBase {
         return false;
     }
 
+    /**
+     * Searches the catalog.
+     *
+     * @param searchRequest the parameters used to search the catalog
+     *
+     * @return a SearchResponse
+     *
+     * @throws IOException if there is an error communicating
+     */
     public SearchResponse search(SearchRequest searchRequest) throws IOException {
 
         Gson gson = new Gson();
@@ -66,6 +69,15 @@ public class CatalogManager extends CommunicationBase {
         return null;
     }
 
+    /**
+     * Gets a single record from the catalog.
+     *
+     * @param catalogId the catalogId to get
+     *
+     * @return the record if found, null if it isn't found
+     *
+     * @throws IOException if there is an error communicating
+     */
     public Record getRecord( String catalogId ) throws IOException {
         String getUrl = baseUrl + "/record/" + catalogId + "?includeRelationships=false";
 
@@ -80,10 +92,19 @@ public class CatalogManager extends CommunicationBase {
         return null;
     }
 
-    public SearchResponse traverseFromRecord(TraverseRequest request) throws IOException{
+    /**
+     * Traverse from a record.
+     *
+     * @param traverseRequest the request to do the traverse
+     *
+     * @return a SearchResponse related to the traversal.
+     *
+     * @throws IOException if there is an error communicating
+     */
+    public SearchResponse traverseFromRecord(TraverseRequest traverseRequest) throws IOException{
         Gson gson = new Gson();
 
-        String traverseRequestString = gson.toJson(request, TraverseRequest.class);
+        String traverseRequestString = gson.toJson(traverseRequest, TraverseRequest.class);
 
         String traverseResultString = postData( baseUrl + "/traverse", traverseRequestString, true );
 
