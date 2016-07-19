@@ -34,7 +34,7 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://git@github.com:digitalglobe/gbdxtools4j.git</connection>
+        <connection>scm:git:https://github.com/digitalglobe/gbdxtools4j.git</connection>
         <developerConnection>scm:git:git@github.com:digitalglobe/gbdxtools4j.git</developerConnection>
         <url>https://github.com/DigitalGlobe/gbdxtools4j</url>
     </scm>
