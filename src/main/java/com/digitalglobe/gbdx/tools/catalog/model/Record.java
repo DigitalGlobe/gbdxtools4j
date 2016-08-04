@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
 /**
@@ -12,22 +13,22 @@ import com.google.gson.annotations.Expose;
  */
 public class Record {
     @Expose
-    private String identifier = null;
+    private String identifier;
 
     @Expose
-    private String owner = null;
+    private String owner;
 
     @Expose
-    private String type = null;
+    private String type;
 
     @Expose
-    private Map<String, String> properties = new HashMap<>();
+    private Map<String, String> properties;
 
     @Expose
-    private Map<String, List<Relationship>> inEdges = new HashMap<>();
+    private Map<String, List<Relationship>> inEdges;
 
     @Expose
-    private Map<String, List<Relationship>> outEdges = new HashMap<>();
+    private Map<String, List<Relationship>> outEdges;
 
 
     public Map<String, String> getProperties() {
@@ -36,6 +37,15 @@ public class Record {
 
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
+    }
+
+    public synchronized void setProperty(String key, String value) {
+        synchronized (this) {
+            if (properties == null)
+                properties = new HashMap<>();
+
+            properties.put(key, value);
+        }
     }
 
     public Map<String, List<Relationship>> getInEdges() {
@@ -98,6 +108,16 @@ public class Record {
         return this;
     }
 
+    public Record withProperty(String key, String value) {
+        synchronized (this) {
+            if (properties == null)
+                properties = new HashMap<>();
+
+            properties.put(key, value);
+        }
+        return this;
+    }
+
     public Record withInEdges(Map<String, List<Relationship>> inEdges) {
         this.inEdges = inEdges;
         return this;
@@ -110,7 +130,7 @@ public class Record {
 
     @Override
     public String toString() {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         return gson.toJson(this);
     }

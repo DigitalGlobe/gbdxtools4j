@@ -6,7 +6,7 @@ import com.digitalglobe.gbdx.tools.catalog.CatalogManager;
 import com.digitalglobe.gbdx.tools.catalog.model.Record;
 
 
-public class GetRecord {
+public class GetRecordByCatId {
     public static void main(String[] argv) throws IOException {
         CatalogManager catalogManager = new CatalogManager();
 

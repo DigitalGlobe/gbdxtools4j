@@ -1,14 +1,20 @@
 package com.digitalglobe.gbdx.tools.catalog;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.digitalglobe.gbdx.tools.catalog.model.Record;
+import com.digitalglobe.gbdx.tools.catalog.model.Relationship;
 import com.digitalglobe.gbdx.tools.catalog.model.SearchRequest;
 import com.digitalglobe.gbdx.tools.catalog.model.SearchResponse;
 import com.digitalglobe.gbdx.tools.catalog.model.TraverseRequest;
+import com.digitalglobe.gbdx.tools.catalog.model.Type;
 import com.digitalglobe.gbdx.tools.communication.CommunicationBase;
+import com.digitalglobe.gbdx.tools.communication.ErrorMessage;
 import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -114,4 +120,158 @@ public class CatalogManager extends CommunicationBase {
         return null;
     }
 
+    /**
+     * Creates a type in the GBDX catalog.
+     *
+     * @param type the type to create
+     *
+     * @return the created type.  It will be the same as the passed in type other than the owner will be the
+     *         GBDX user of the caller.
+     *
+     * @throws IOException if there is an error communicating
+     */
+    public Type createType( Type type ) throws IOException {
+        Gson gson = new Gson();
+
+        String createTypeString = postData( baseUrl + "/type", gson.toJson(type, Type.class), true );
+
+        return getType(type.getIdentifier());
+    }
+
+    /**
+     * List all catalog types
+     *
+     * @return a List of Types
+     *
+     * @throws IOException if there is an error communicating
+     */
+    public List<Type> listAllTypes() throws IOException {
+        String getTypesString = getData( baseUrl + "/type", true );
+
+        java.lang.reflect.Type listType = new TypeToken<ArrayList<Type>>(){}.getType();
+
+        return new Gson().fromJson(getTypesString, listType);
+    }
+
+    /**
+     * Get a single catalog type
+     *
+     * @return the Type
+     *
+     * @throws IOException if there is an error communicating
+     */
+    public Type getType(String identifier) throws IOException {
+        String getTypeString = getData( baseUrl + "/type/" + identifier, true );
+
+        return new Gson().fromJson(getTypeString, Type.class);
+    }
+
+    /**
+     * Creates a record in the GBDX catalog.
+     *
+     * @param record the record to create
+     *
+     * @return the created record.  It will be the same as the passed in record other than the owner will be the
+     *         GBDX user of the caller.
+     *
+     * @throws IOException if there is an error communicating
+     */
+    public Record createRecord( Record record ) throws IOException {
+        Gson gson = new Gson();
+
+        String createRecordString = postData( baseUrl + "/record", gson.toJson(record, Record.class), true );
+
+        return gson.fromJson(createRecordString, Record.class);
+    }
+
+    /**
+     * Updates a record in the GBDX catalog.
+     *
+     * @param record the record to update.
+     *
+     * @return the updated record
+     *
+     * @throws IOException if there is an error communicating
+     */
+
+    public Record updateRecord( Record record ) throws IOException {
+        Gson gson = new Gson();
+
+        String updateRecordString = putData( baseUrl + "/record", gson.toJson(record, Record.class), true );
+
+        return gson.fromJson(updateRecordString, Record.class);
+    }
+
+    /**
+     * Removes a record from the GBDX catalog.
+     *
+     * @param record the record to remove.
+     *
+     * @return true if the record was removed, false if not
+     *
+     * @throws IOException if there is an error communicating
+     */
+
+    public boolean removeRecord( Record record ) throws IOException {
+        return removeRecord( record.getIdentifier() );
+    }
+
+    /**
+     * Removes a record from the GBDX catalog.
+     *
+     * @param identifier the identifier of the record to remove.
+     *
+     * @return true if the record was removed, false if not
+     *
+     * @throws IOException if there is an error communicating
+     */
+
+    public boolean removeRecord( String identifier ) throws IOException {
+        String deleteUrl = baseUrl + "/record/" + identifier + "?includeRelationships=false";
+
+        ErrorMessage errorMessage = delete(deleteUrl, true);
+
+        if( errorMessage != null ) {
+            if( (errorMessage.getStatus() != null) && (errorMessage.getStatus().contains("404")))
+                return false;
+        }
+
+        return true;
+    }
+
+    public void createRelationship( Relationship relationship ) throws IOException {
+        Gson gson = new Gson();
+
+        try {
+            String createRelationshipString = postData(baseUrl + "/relationship", gson.toJson(relationship, Relationship.class), true);
+        }
+        catch (IOException ioe) {
+            System.out.println( "exception is " + ioe.getMessage());
+        }
+
+    }
+
+    /**
+     * Get a Relationship from a catalogs identifier.
+     *
+     * @param identifier the identifier to get the relationship for.
+     *
+     * @return a Relationship class if a relationship can be found or null if not.
+     *
+     * @throws IOException if there is an error communicating
+     */
+    public Relationship getRelationships(String identifier) throws IOException {
+        String getRelationshipString;
+
+        try {
+            getRelationshipString = getData( baseUrl + "/relationship/" + identifier, true );
+            return new Gson().fromJson(getRelationshipString, Relationship.class);
+        }
+        catch( IOException ioe ) {
+            if( ioe.getMessage().contains("404"))
+                return null;
+
+            throw ioe;
+        }
+    }
 }

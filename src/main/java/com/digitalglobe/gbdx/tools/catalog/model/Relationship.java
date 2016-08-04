@@ -1,6 +1,7 @@
 package com.digitalglobe.gbdx.tools.catalog.model;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
 /**
@@ -74,7 +75,7 @@ public class Relationship {
 
     @Override
     public String toString() {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         return gson.toJson(this);
     }

@@ -16,6 +16,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.StringEntity;
@@ -121,6 +122,44 @@ public class CommunicationBase {
     }
 
     /**
+     * Put data to the given url.
+     *
+     * @param url the url to send the jsonString to
+     * @param jsonString the data to send
+     * @param requiresAuth indicates if we need to send the auth header for this call
+     *
+     * @return the body returned by the HTTP put.
+     *
+     * @throws IOException if there was an error (a non-200) return value from the HTTP post
+     *
+     */
+    protected String putData(String url, String jsonString, boolean requiresAuth) throws IOException {
+        try (CloseableHttpClient closeableHttpClient = getHttpClient()) {
+            HttpPut httpPut = new HttpPut(url);
+
+            if (requiresAuth)
+                httpPut.addHeader("Authorization", "Bearer " + gbdxAuthManager.getAccessToken());
+
+            StringEntity stringEntity = new StringEntity(jsonString);
+            stringEntity.setContentType("application/json");
+            httpPut.setEntity(stringEntity);
+
+            try (CloseableHttpResponse response = closeableHttpClient.execute(httpPut)) {
+
+                int httpResponseCode = response.getStatusLine().getStatusCode();
+                String responseBody = EntityUtils.toString(response.getEntity());
+
+                if (httpResponseCode != 200) {
+                    throw new IOException("HTTP PUT got non-200 response of " +
+                            httpResponseCode + " with body of \"" + responseBody + "\"");
+                }
+
+                return responseBody;
+            }
+        }
+    }
+
+    /**
      * Delete from a url.
      *
      * @param url the url to send the jsonString to
@@ -131,7 +170,7 @@ public class CommunicationBase {
      * @throws IOException if there was an error (a non-200) return value from the HTTP post
      *
      */
-    protected String delete(String url, boolean requiresAuth) throws IOException {
+    protected ErrorMessage delete(String url, boolean requiresAuth) throws IOException {
         try (CloseableHttpClient closeableHttpClient = getHttpClient()) {
             HttpDelete httpDelete = new HttpDelete(url);
 
@@ -141,14 +180,16 @@ public class CommunicationBase {
             try (CloseableHttpResponse response = closeableHttpClient.execute(httpDelete)) {
 
                 int httpResponseCode = response.getStatusLine().getStatusCode();
-                String responseBody = EntityUtils.toString(response.getEntity());
 
-                if (httpResponseCode != 200) {
-                    throw new IOException("HTTP DELETE got non-200 response of " +
-                                          httpResponseCode + " with body of \"" + responseBody + "\"");
+                String responseBody = null;
+                if( response.getEntity() != null )
+                    responseBody = EntityUtils.toString(response.getEntity());
+
+                if (httpResponseCode / 100 != 2) {
+                    return new Gson().fromJson(responseBody, ErrorMessage.class);
                 }
 
-                return responseBody;
+                return null;
             }
         }
     }

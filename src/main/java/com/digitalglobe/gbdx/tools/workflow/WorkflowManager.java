@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.digitalglobe.gbdx.tools.communication.CommunicationBase;
+import com.digitalglobe.gbdx.tools.communication.ErrorMessage;
 import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.digitalglobe.gbdx.tools.workflow.model.TaskList;
 import com.digitalglobe.gbdx.tools.workflow.model.Workflow;
@@ -105,9 +106,10 @@ public class WorkflowManager extends CommunicationBase {
     public void deleteTask(String taskName) throws IOException {
         String deleteUrl = baseUrl + "/tasks/" + taskName;
 
-        String registerTaskResult = delete(deleteUrl, true);
+        ErrorMessage errorMessage = delete(deleteUrl, true);
 
-        log.debug( "delete task result is \"" + registerTaskResult + "\"");
+        if( errorMessage != null )
+            log.debug( "delete task error is \"" + errorMessage.toString() + "\"");
     }
 
     /**

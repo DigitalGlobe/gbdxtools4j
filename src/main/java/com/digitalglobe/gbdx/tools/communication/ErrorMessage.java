@@ -1,5 +1,8 @@
 package com.digitalglobe.gbdx.tools.communication;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 /**
  * Simple container for error messages.
  */
@@ -21,5 +24,12 @@ public class ErrorMessage {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        return gson.toJson(this);
     }
 }
