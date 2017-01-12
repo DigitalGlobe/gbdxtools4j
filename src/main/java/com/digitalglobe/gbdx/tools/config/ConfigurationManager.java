@@ -3,6 +3,8 @@ package com.digitalglobe.gbdx.tools.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ini4j.Ini;
@@ -15,16 +17,21 @@ import org.slf4j.LoggerFactory;
 public class ConfigurationManager {
     private static final Logger log = LoggerFactory.getLogger( ConfigurationManager.class );
 
-    private String authUrl = null;
-    private String userName = null;
-    private String password = null;
-    private String clientId = null;
-    private String clientSecret = null;
-    private String environment = null;
+    private static String authUrl = null;
+    private static String userName = null;
+    private static String password = null;
+    private static String clientId = null;
+    private static String clientSecret = null;
+    private static String environment = null;
+    private static String serviceBaseUrl = null;
+    private static String accessToken = null;
+    private static String tokenExpiration = null;
 
     private static final String DEFAULT_BASE_URL = "https://geobigdata.io";
     private static final String DEFAULT_AUTH_URL = DEFAULT_BASE_URL + "/auth/v1/oauth/token/";
     private static final String CONFIG_SECTION_NAME = "gbdx";
+    private static final AtomicBoolean initialized = new AtomicBoolean(false);
+    private static final Object lock = new Object();
 
 
     /**
@@ -57,64 +64,75 @@ public class ConfigurationManager {
      * </p>
      */
     public ConfigurationManager() {
-        File configFile = new File(System.getProperty("user.home") +
-                System.getProperty("file.separator") + ".gbdx-config");
+        synchronized (lock) {
+            if( initialized.get() )
+                return;
 
-        environment = getEnvOrSystemVar("ENVIRONMENT", environment);
+            File configFile = new File(System.getProperty("user.home") +
+                    System.getProperty("file.separator") + ".gbdx-config");
 
-        if (configFile.exists() && configFile.canRead()) {
-            try (FileInputStream fis = new FileInputStream(configFile)) {
-                Ini ini = new Ini();
-                ini.load(fis);
+            environment = getEnvOrSystemVar("ENVIRONMENT", environment);
+            authUrl = DEFAULT_AUTH_URL;
 
-                String configSection;
-                if( environment != null )
-                    configSection = CONFIG_SECTION_NAME + environment;
-                else
-                    configSection = CONFIG_SECTION_NAME;
+            if (configFile.exists() && configFile.canRead()) {
+                try (FileInputStream fis = new FileInputStream(configFile)) {
+                    Ini ini = new Ini();
+                    ini.load(fis);
 
-                Ini.Section section = ini.get(configSection);
+                    String configSection = CONFIG_SECTION_NAME;
+                    if (environment != null) {
+                        configSection = CONFIG_SECTION_NAME + "-" + environment;
+                    }
 
-                if( section == null )
-                    section = ini.get(CONFIG_SECTION_NAME);
+                    System.out.println("using configSection \"" + configSection + "\"");
 
-                if (section != null) {
-                    authUrl = section.get("auth_url");
-                    userName = section.get("user_name");
-                    password = section.get("user_password");
-                    clientId = section.get("client_id");
-                    clientSecret = section.get("client_secret");
+                    Ini.Section section = ini.get(configSection);
+
+                    if (section == null)
+                        section = ini.get(CONFIG_SECTION_NAME);
+
+                    if (section != null) {
+                        authUrl = section.get("auth_url");
+                        userName = section.get("user_name");
+                        password = section.get("user_password");
+                        clientId = section.get("client_id");
+                        clientSecret = section.get("client_secret");
+                        serviceBaseUrl = section.get("service_base_url");
+                        tokenExpiration = section.get("token_expiration");
+                        accessToken = section.get("access_token");
+                    } else {
+                        log.warn("No \"" + configSection + "\" section in the INI file \"" + configFile.getAbsolutePath() +
+                                "\" - falling back to environment / system variables");
+                    }
+                } catch (IOException ioe) {
+                    log.warn("can't open config file \"" + configFile.getAbsolutePath() +
+                            "\" - falling back to environment / system variables", ioe);
                 }
-                else {
-                    log.warn("No \"gbdx\" section in the INI file \"" + configFile.getAbsolutePath() +
-                            "\" - falling back to environment / system variables");
-                }
-            } catch (IOException ioe) {
-                log.warn("can't open config file \"" + configFile.getAbsolutePath() +
-                        "\" - falling back to environment / system variables", ioe);
             }
+
+            authUrl = getEnvOrSystemVar("GBDX_AUTH_URL", authUrl);
+            userName = getEnvOrSystemVar("GBDX_USERNAME", userName);
+            password = getEnvOrSystemVar("GBDX_PASSWORD", password);
+            clientId = getEnvOrSystemVar("GBDX_CLIENT_ID", clientId);
+            clientSecret = getEnvOrSystemVar("GBDX_CLIENT_SECRET", clientSecret);
+
+            if (authUrl == null)
+                throw new IllegalStateException("no authorization url configured");
+
+            if (userName == null)
+                throw new IllegalStateException("no user name configured");
+
+            if (password == null)
+                throw new IllegalStateException("no password configured");
+
+            if (clientId == null)
+                throw new IllegalStateException("no client id configured");
+
+            if (clientSecret == null)
+                throw new IllegalStateException("no client secret configured");
+
+            initialized.set(true);
         }
-
-        authUrl = getEnvOrSystemVar("GBDX_AUTH_URL", DEFAULT_AUTH_URL);
-        userName = getEnvOrSystemVar("GBDX_USERNAME", userName);
-        password = getEnvOrSystemVar("GBDX_PASSWORD", password);
-        clientId = getEnvOrSystemVar("GBDX_CLIENT_ID", clientId);
-        clientSecret = getEnvOrSystemVar("GBDX_CLIENT_SECRET", clientSecret);
-
-        if( authUrl == null )
-            throw new IllegalStateException("no authorization url configured");
-
-        if( userName == null )
-            throw new IllegalStateException("no user name configured");
-
-        if( password == null )
-            throw new IllegalStateException("no password configured");
-
-        if( clientId == null )
-            throw new IllegalStateException("no client id configured");
-
-        if( clientSecret == null )
-            throw new IllegalStateException("no client secret configured");
     }
 
     /**
@@ -163,6 +181,26 @@ public class ConfigurationManager {
         return clientSecret;
     }
 
+    /**
+     * Get the access token if it exists.
+     *
+     * @return the access token
+     *
+     */
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    /**
+     * Get the token expiration string if it exists.
+     *
+     * @return the token expiration string.
+     *
+     */
+    public String getTokenExpiration() {
+        return tokenExpiration;
+    }
+
 
     /**
      * Gets the base part of the URL we'll use for communicating, taking account of the environment.
@@ -170,6 +208,9 @@ public class ConfigurationManager {
      * @return the base url.
      */
     public String getBaseAPIUrl() {
+        if( serviceBaseUrl != null)
+            return serviceBaseUrl;
+
         if (environment != null)
             return "https://" + environment + ".geobigdata.io";
 
@@ -178,13 +219,16 @@ public class ConfigurationManager {
 
     /**
      * Gets a boolean to tell us if we're running in production or not.  This is determined
-     * by seeing if the environment is set.  If so, we're not in production.  If not, we're
-     * in production.
+     * by seeing if the service_base_url is set to the same as the default.  If so, we're
+     * in production.  If not, we're not in production.
      *
      * @return boolean that, if true, we're running in production
      */
     public boolean runningInProduction() {
-        return environment == null;
+        if( serviceBaseUrl != null && serviceBaseUrl.equals(DEFAULT_BASE_URL) )
+            return true;
+
+        return false;
     }
 
     /**
@@ -210,5 +254,42 @@ public class ConfigurationManager {
         value = StringUtils.trimToNull(value);
 
         return (value == null ? defaultValue : value);
+    }
+
+    public void saveUpdatedParameters( Map<String, String> values ) {
+        return;
+
+/*
+        File configFile = new File(System.getProperty("user.home") +
+                System.getProperty("file.separator") + ".gbdx-config");
+
+        environment = getEnvOrSystemVar("ENVIRONMENT", environment);
+
+        if (configFile.exists() && configFile.canRead()) {
+            try (FileInputStream fis = new FileInputStream(configFile)) {
+                Ini ini = new Ini();
+                ini.load(fis);
+
+                String configSection = CONFIG_SECTION_NAME;
+                if( environment != null )
+                    configSection = CONFIG_SECTION_NAME + "-" + environment;
+
+                Ini.Section section = ini.get(configSection);
+
+                if( section == null )
+                    section = ini.get(CONFIG_SECTION_NAME);
+
+                for( String nextKey: values.keySet() ) {
+                    section.put(nextKey, values.get(nextKey));
+                }
+
+                ini.store();
+            } catch (IOException ioe) {
+                log.warn("can't open config file \"" + configFile.getAbsolutePath() +
+                        "\" - falling back to environment / system variables", ioe);
+            }
+        }
+*/
+
     }
 }

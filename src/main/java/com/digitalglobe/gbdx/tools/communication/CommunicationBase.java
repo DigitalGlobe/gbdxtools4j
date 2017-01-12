@@ -6,12 +6,10 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
 
 import com.digitalglobe.gbdx.tools.auth.GBDXAuthManager;
 import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.google.gson.Gson;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -58,8 +56,11 @@ public class CommunicationBase {
         try (CloseableHttpClient closeableHttpClient = getHttpClient()) {
             HttpGet httpGet = new HttpGet(url);
 
-            if (requiresAuth)
+            if (requiresAuth) {
                 httpGet.addHeader("Authorization", "Bearer " + gbdxAuthManager.getAccessToken());
+
+                System.out.println( httpGet.getLastHeader("Authorization"));
+            }
 
             try (CloseableHttpResponse response = closeableHttpClient.execute(httpGet)) {
 
@@ -99,8 +100,11 @@ public class CommunicationBase {
         try (CloseableHttpClient closeableHttpClient = getHttpClient()) {
             HttpPost httpPost = new HttpPost(url);
 
-            if (requiresAuth)
+            if (requiresAuth) {
                 httpPost.addHeader("Authorization", "Bearer " + gbdxAuthManager.getAccessToken());
+
+                System.out.println( httpPost.getLastHeader("Authorization"));
+            }
 
             StringEntity stringEntity = new StringEntity(jsonString);
             stringEntity.setContentType("application/json");
@@ -109,10 +113,13 @@ public class CommunicationBase {
             try (CloseableHttpResponse response = closeableHttpClient.execute(httpPost)) {
 
                 int httpResponseCode = response.getStatusLine().getStatusCode();
-                String responseBody = EntityUtils.toString(response.getEntity());
 
-                if (httpResponseCode != 200) {
-                    throw new IOException("HTTP POST got non-200 response of " +
+                String responseBody = null;
+                if( response.getEntity() != null )
+                    responseBody = EntityUtils.toString(response.getEntity());
+
+                if (httpResponseCode / 100 != 2) {
+                    throw new IOException("HTTP POST to \"" + url + "\" got non-200 response of " +
                                           httpResponseCode + " with body of \"" + responseBody + "\"");
                 }
 
@@ -212,13 +219,7 @@ public class CommunicationBase {
             try {
                 SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
                 sslContextBuilder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-             //   HostnameVerifier hostnameVerifierAllowAll = (hostname, session) -> true;
-                HostnameVerifier hostnameVerifierAllowAll = new HostnameVerifier() {
-                    @Override
-                    public boolean verify(String hostname, SSLSession sslSession) {
-                        return true;
-                    }
-                };
+                HostnameVerifier hostnameVerifierAllowAll = (hostname, session) -> true;
 
                 SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build(),
                         hostnameVerifierAllowAll);

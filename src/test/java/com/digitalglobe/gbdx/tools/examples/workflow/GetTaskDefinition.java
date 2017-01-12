@@ -10,7 +10,7 @@ public class GetTaskDefinition {
     public static void main(String[] argv) throws IOException {
         WorkflowManager workflowManager = new WorkflowManager();
 
-        Task task = workflowManager.getTaskDefinition("test-file-passthrough");
+        Task task = workflowManager.getTaskDefinition("AComp_1.0");
         System.out.print( "test-file-passthrough task is " + task.toString() );
     }
 }

@@ -139,6 +139,28 @@ public class CatalogManager extends CommunicationBase {
     }
 
     /**
+     * Remove a type in the GBDX catalog.
+     *
+     * @param type the type to remove
+     *
+     * @return true if the type was removed, false otherwise
+     *
+     * @throws IOException if there is an error communicating
+     */
+    public boolean removeType( Type type ) throws IOException {
+        String deleteUrl = baseUrl + "/type/" + type.getIdentifier();
+
+        ErrorMessage errorMessage = delete(deleteUrl, true);
+
+        if( errorMessage != null ) {
+            if( (errorMessage.getStatus() != null) && (errorMessage.getStatus().contains("404")))
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
      * List all catalog types
      *
      * @return a List of Types
@@ -273,5 +295,18 @@ public class CatalogManager extends CommunicationBase {
 
             throw ioe;
         }
+    }
+
+    public boolean removeRelationship(String identifier) throws IOException {
+        String deleteUrl = baseUrl + "/relationship/" + identifier;
+
+        ErrorMessage errorMessage = delete(deleteUrl, true);
+
+        if( errorMessage != null ) {
+            if( (errorMessage.getStatus() != null) && (errorMessage.getStatus().contains("404")))
+                return false;
+        }
+
+        return true;
     }
 }

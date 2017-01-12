@@ -1,5 +1,7 @@
 package com.digitalglobe.gbdx.tools.auth;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -37,11 +39,11 @@ import com.google.gson.annotations.SerializedName;
         this.accessToken = accessToken;
     }
 
-    public String getToken_type() {
+    public String getTokenType() {
         return tokenType;
     }
 
-    public void setToken_type(String tokenType) {
+    public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
     }
 
@@ -67,5 +69,12 @@ import com.google.gson.annotations.SerializedName;
 
     public void setScope(String scope) {
         this.scope = scope;
+    }
+
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        return gson.toJson(this);
     }
 }

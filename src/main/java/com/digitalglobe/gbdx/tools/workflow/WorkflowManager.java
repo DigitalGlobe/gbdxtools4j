@@ -145,12 +145,29 @@ public class WorkflowManager extends CommunicationBase {
     /**
      * Get the status of a workflow
      *
-     * @param workflowId the workflow to submit
+     * @param workflowId the workflow id to get the status for
      *
      * @throws IOException if there is an error communicating
      */
     public Workflow getWorkflowStatus(String workflowId) throws IOException {
         String getUrl = baseUrl + "/workflows/" + workflowId;
+
+        String workflowStatusResult = getData(getUrl, true);
+
+        Gson gson = new Gson();
+
+        return gson.fromJson(workflowStatusResult, Workflow.class);
+    }
+
+    /**
+     * Get the events of a workflow
+     *
+     * @param workflowId the workflow id to get the events for
+     *
+     * @throws IOException if there is an error communicating
+     */
+    public Workflow getWorkflowStatusEvents(String workflowId) throws IOException {
+        String getUrl = baseUrl + "/workflows/" + workflowId + "/events";
 
         String workflowStatusResult = getData(getUrl, true);
 
