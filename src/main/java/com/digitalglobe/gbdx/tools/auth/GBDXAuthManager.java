@@ -1,12 +1,9 @@
 package com.digitalglobe.gbdx.tools.auth;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +29,9 @@ import org.slf4j.LoggerFactory;
  */
 public class GBDXAuthManager {
     private static final Logger log = LoggerFactory.getLogger(GBDXAuthManager.class);
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
     private static String accessToken = null;
-    private static long tokenExpiration;
+    private static ZonedDateTime tokenExpiration;
     private static final Object lock = new Object();
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
@@ -53,29 +49,25 @@ public class GBDXAuthManager {
 
             ConfigurationManager configurationManager = new ConfigurationManager();
 
-            if (configurationManager.getAccessToken() != null) {
+            if (configurationManager.getAccessToken() == null)
+                getNewToken();
+            else {
                 String tokenExpirationString = configurationManager.getTokenExpiration();
 
-                try {
-                    Date tokenExpirationDate = sdf.parse(tokenExpirationString);
+                ZonedDateTime tokenExpirationDate = ZonedDateTime.parse(tokenExpirationString,
+                        DateTimeFormatter.ISO_INSTANT);
 
-                    Date now = new Date();
+                ZonedDateTime now = ZonedDateTime.now();
 
-                    //
-                    // do we have at least an hour left on the token?
-                    //
-                    if (now.getTime() + 3600 < tokenExpirationDate.getTime()) {
-                        accessToken = configurationManager.getAccessToken();
-                        tokenExpiration = tokenExpirationDate.getTime();
-                    } else {
-                        getNewToken();
-                    }
-                } catch (ParseException pe) {
-                    log.warn("can't parse token expiration - getting new token", pe);
-                    getNewToken();
+                //
+                // do we have at least an hour left on the token?
+                //
+                if( now.plusSeconds(3600).compareTo(tokenExpirationDate) < 1 ) {
+                    accessToken = configurationManager.getAccessToken();
+                    tokenExpiration = now;
                 }
-            } else {
-                getNewToken();
+                else
+                    getNewToken();
             }
 
             initialized.set(true);
@@ -106,17 +98,17 @@ public class GBDXAuthManager {
                     Gson gson = new Gson();
                     OAuth2Token oAuth2Token = gson.fromJson(EntityUtils.toString(response.getEntity()), OAuth2Token.class );
 
-                    log.debug( "oauth token is " + oAuth2Token.toString() );
+                    // log.debug( "oauth token is " + oAuth2Token.toString() );
 
                     accessToken = oAuth2Token.getAccessToken();
-                    tokenExpiration = new Date().getTime() + oAuth2Token.getExpiresIn();
 
                     Map<String, String> params = new Hashtable<>();
                     params.put("auth_token", accessToken);
 
-                    GregorianCalendar currentTime = new GregorianCalendar();
-                    currentTime.add(Calendar.SECOND, oAuth2Token.getExpiresIn() );
-                    params.put("token_expiration", sdf.format(currentTime.getTime()) );
+                    ZonedDateTime zonedDateTime = ZonedDateTime.now();
+                    tokenExpiration = zonedDateTime.plusSeconds(oAuth2Token.getExpiresIn());
+
+                    params.put("token_expiration", DateTimeFormatter.ISO_INSTANT.format(tokenExpiration));
                     configurationManager.saveUpdatedParameters(params);
                 }
             }

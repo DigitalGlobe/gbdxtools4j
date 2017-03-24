@@ -1,6 +1,8 @@
 package com.digitalglobe.gbdx.tools.communication;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -10,6 +12,7 @@ import javax.net.ssl.HostnameVerifier;
 import com.digitalglobe.gbdx.tools.auth.GBDXAuthManager;
 import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.google.gson.Gson;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -53,33 +56,44 @@ public class CommunicationBase {
      */
     protected String getData(String url, boolean requiresAuth) throws IOException {
 
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        getData(url, byteArrayOutputStream, requiresAuth);
+
+        return byteArrayOutputStream.toString();
+    }
+
+    /**
+     * Gets data from the given url.
+     *
+     * @param url the url to send the jsonString to
+     * @param outputStream an OutputStream to copy the data from the call to
+     * @param requiresAuth indicates if we need to send the auth header for this call
+     *
+     * @throws IOException if there was an error (a non-200) return value from the HTTP post
+     *
+     */
+    protected void getData(String url, OutputStream outputStream, boolean requiresAuth) throws IOException {
+
         try (CloseableHttpClient closeableHttpClient = getHttpClient()) {
             HttpGet httpGet = new HttpGet(url);
 
-            if (requiresAuth) {
+            if (requiresAuth)
                 httpGet.addHeader("Authorization", "Bearer " + gbdxAuthManager.getAccessToken());
 
-                System.out.println( httpGet.getLastHeader("Authorization"));
-            }
+            try (CloseableHttpResponse getResponse = closeableHttpClient.execute(httpGet)) {
 
-            try (CloseableHttpResponse response = closeableHttpClient.execute(httpGet)) {
-
-                int httpResponseCode = response.getStatusLine().getStatusCode();
-                String responseBody = EntityUtils.toString(response.getEntity());
+                int httpResponseCode = getResponse.getStatusLine().getStatusCode();
 
                 if (httpResponseCode != 200) {
-
                     if( httpResponseCode == 401 ) {
-                        Gson gson = new Gson();
-                        ErrorMessage errorMessage = gson.fromJson( responseBody, ErrorMessage.class);
-                        throw new SecurityException("Your credentials are not able to access this resource.  Reason: "
-                                                     + errorMessage.getMessage() );
+                        throw new SecurityException("Your credentials are not able to access this resource" );
                     }
 
-                    throw new IOException("HTTP GET got non-200 response of " + httpResponseCode + " with body of \"" + responseBody + "\"");
+                    throw new IOException("HTTP GET got non-200 response of " + httpResponseCode );
                 }
 
-                return responseBody;
+                IOUtils.copy(getResponse.getEntity().getContent(), outputStream);
             }
         }
     }
@@ -97,33 +111,50 @@ public class CommunicationBase {
      *
      */
     protected String postData(String url, String jsonString, boolean requiresAuth) throws IOException {
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        postData(url, jsonString, byteArrayOutputStream, requiresAuth);
+
+        return byteArrayOutputStream.toString();
+    }
+
+    /**
+     * Post data to the given url.
+     *
+     * @param url the url to send the jsonString to
+     * @param jsonString the data to send
+     * @param outputStream an OutputStream to copy the data from the call to
+     * @param requiresAuth indicates if we need to send the auth header for this call
+     *
+     * @throws IOException if there was an error (a non-200) return value from the HTTP post
+     *
+     */
+    protected void postData(String url, String jsonString, OutputStream outputStream, boolean requiresAuth) throws IOException {
+
         try (CloseableHttpClient closeableHttpClient = getHttpClient()) {
             HttpPost httpPost = new HttpPost(url);
 
-            if (requiresAuth) {
+            if (requiresAuth)
                 httpPost.addHeader("Authorization", "Bearer " + gbdxAuthManager.getAccessToken());
-
-                System.out.println( httpPost.getLastHeader("Authorization"));
-            }
 
             StringEntity stringEntity = new StringEntity(jsonString);
             stringEntity.setContentType("application/json");
             httpPost.setEntity(stringEntity);
 
-            try (CloseableHttpResponse response = closeableHttpClient.execute(httpPost)) {
+            try (CloseableHttpResponse postResponse = closeableHttpClient.execute(httpPost)) {
 
-                int httpResponseCode = response.getStatusLine().getStatusCode();
+                int httpResponseCode = postResponse.getStatusLine().getStatusCode();
 
-                String responseBody = null;
-                if( response.getEntity() != null )
-                    responseBody = EntityUtils.toString(response.getEntity());
+                if (httpResponseCode != 200) {
+                    if( httpResponseCode == 401 ) {
+                        throw new SecurityException("Your credentials are not able to access this resource" );
+                    }
 
-                if (httpResponseCode / 100 != 2) {
-                    throw new IOException("HTTP POST to \"" + url + "\" got non-200 response of " +
-                                          httpResponseCode + " with body of \"" + responseBody + "\"");
+                    throw new IOException("HTTP GET got non-200 response of " + httpResponseCode );
                 }
 
-                return responseBody;
+                IOUtils.copy(postResponse.getEntity().getContent(), outputStream);
             }
         }
     }

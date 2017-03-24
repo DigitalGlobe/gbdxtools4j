@@ -2,7 +2,6 @@ package com.digitalglobe.gbdx.tools.catalogv2;
 
 import java.io.IOException;
 
-import com.digitalglobe.gbdx.tools.catalog.model.Record;
 import com.digitalglobe.gbdx.tools.catalog.model.SearchRequest;
 import com.digitalglobe.gbdx.tools.catalogv2.model.SearchResponseV2;
 import com.digitalglobe.gbdx.tools.communication.CommunicationBase;
@@ -63,29 +62,6 @@ public class CatalogManagerV2 extends CommunicationBase {
 
         if( StringUtils.trimToNull(searchRequestResultString) != null )
             return gson.fromJson(searchRequestResultString, SearchResponseV2.class);
-
-        return null;
-    }
-
-    /**
-     * Gets a single record from the catalog.
-     *
-     * @param catalogId the catalogId to get
-     *
-     * @return the record if found, null if it isn't found
-     *
-     * @throws IOException if there is an error communicating
-     */
-    public Record getRecord(String catalogId ) throws IOException {
-        String getUrl = baseUrl + "/record/" + catalogId + "?includeRelationships=false";
-
-        String getRecordString = getData( getUrl, true );
-
-        if(StringUtils.trimToNull(getRecordString) != null ) {
-            Gson gson = new Gson();
-
-            return gson.fromJson(getRecordString, Record.class);
-        }
 
         return null;
     }

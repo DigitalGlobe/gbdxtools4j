@@ -256,19 +256,23 @@ public class ConfigurationManager {
         return (value == null ? defaultValue : value);
     }
 
+    /**
+     * Saves all parameters to the config file.  Any existing parameters are overwritten.
+     *
+     * @param values the new values to save.
+     *
+     */
     public void saveUpdatedParameters( Map<String, String> values ) {
-        return;
 
-/*
         File configFile = new File(System.getProperty("user.home") +
                 System.getProperty("file.separator") + ".gbdx-config");
 
         environment = getEnvOrSystemVar("ENVIRONMENT", environment);
 
         if (configFile.exists() && configFile.canRead()) {
-            try (FileInputStream fis = new FileInputStream(configFile)) {
+            try {
                 Ini ini = new Ini();
-                ini.load(fis);
+                ini.load(configFile);
 
                 String configSection = CONFIG_SECTION_NAME;
                 if( environment != null )
@@ -283,13 +287,11 @@ public class ConfigurationManager {
                     section.put(nextKey, values.get(nextKey));
                 }
 
-                ini.store();
+                ini.store(configFile);
+
             } catch (IOException ioe) {
-                log.warn("can't open config file \"" + configFile.getAbsolutePath() +
-                        "\" - falling back to environment / system variables", ioe);
+                log.warn("can't open config file \"" + configFile.getAbsolutePath() + "\"", ioe);
             }
         }
-*/
-
     }
 }
