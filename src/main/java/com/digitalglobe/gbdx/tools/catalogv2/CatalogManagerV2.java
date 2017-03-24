@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.digitalglobe.gbdx.tools.catalog.model.SearchRequest;
 import com.digitalglobe.gbdx.tools.catalogv2.model.SearchResponseV2;
 import com.digitalglobe.gbdx.tools.communication.CommunicationBase;
-import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,8 +18,6 @@ public class CatalogManagerV2 extends CommunicationBase {
 
 
     public CatalogManagerV2() {
-        ConfigurationManager configurationManager = new ConfigurationManager();
-
         baseUrl = configurationManager.getBaseAPIUrl() + "/catalog/v2";
     }
 

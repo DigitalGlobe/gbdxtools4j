@@ -2,11 +2,8 @@ package com.digitalglobe.gbdx.tools.auth;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
@@ -25,17 +22,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class to use the authentication credentials and to authenticate
- * against the GBDX authentication service.
+ * against the GBDX authentication service.  The "backing store" for
+ * the token is the config service.
  */
 public class GBDXAuthManager {
     private static final Logger log = LoggerFactory.getLogger(GBDXAuthManager.class);
 
-    private static String accessToken = null;
-    private static ZonedDateTime tokenExpiration;
     private static final Object lock = new Object();
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
-
+    private ConfigurationManager configurationManager;
 
 
     /**
@@ -47,26 +43,18 @@ public class GBDXAuthManager {
             if( initialized.get() )
                 return;
 
-            ConfigurationManager configurationManager = new ConfigurationManager();
+            configurationManager = new ConfigurationManager();
 
             if (configurationManager.getAccessToken() == null)
                 getNewToken();
             else {
-                String tokenExpirationString = configurationManager.getTokenExpiration();
-
-                ZonedDateTime tokenExpirationDate = ZonedDateTime.parse(tokenExpirationString,
-                        DateTimeFormatter.ISO_INSTANT);
-
+                ZonedDateTime tokenExpiration = configurationManager.getAccessTokenExpiration();
                 ZonedDateTime now = ZonedDateTime.now();
 
                 //
                 // do we have at least an hour left on the token?
                 //
-                if( now.plusSeconds(3600).compareTo(tokenExpirationDate) < 1 ) {
-                    accessToken = configurationManager.getAccessToken();
-                    tokenExpiration = now;
-                }
-                else
+                if( now.plusSeconds(3600).compareTo(tokenExpiration) > 1 )
                     getNewToken();
             }
 
@@ -75,9 +63,6 @@ public class GBDXAuthManager {
     }
 
     private void getNewToken() {
-        ConfigurationManager configurationManager = new ConfigurationManager();
-
-
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(configurationManager.getAuthUrl());
 
@@ -100,30 +85,17 @@ public class GBDXAuthManager {
 
                     // log.debug( "oauth token is " + oAuth2Token.toString() );
 
-                    accessToken = oAuth2Token.getAccessToken();
+                    configurationManager.setAccessToken( oAuth2Token.getAccessToken() );
 
-                    Map<String, String> params = new Hashtable<>();
-                    params.put("auth_token", accessToken);
+                    ZonedDateTime tokenExpiration = ZonedDateTime.now().plusSeconds(oAuth2Token.getExpiresIn());
+                    configurationManager.setAccessTokenExpiration(tokenExpiration);
 
-                    ZonedDateTime zonedDateTime = ZonedDateTime.now();
-                    tokenExpiration = zonedDateTime.plusSeconds(oAuth2Token.getExpiresIn());
-
-                    params.put("token_expiration", DateTimeFormatter.ISO_INSTANT.format(tokenExpiration));
-                    configurationManager.saveUpdatedParameters(params);
+                    configurationManager.saveUpdatedParameters();
                 }
             }
         }
         catch (IOException ioe) {
             log.error("error getting token: ", ioe);
         }
-    }
-
-    /**
-     * Get the access token as returned by the auth system
-     *
-     * @return the access token
-     */
-    public String getAccessToken() {
-        return accessToken;
     }
 }

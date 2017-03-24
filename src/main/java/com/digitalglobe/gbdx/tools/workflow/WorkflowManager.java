@@ -5,13 +5,11 @@ import java.util.List;
 
 import com.digitalglobe.gbdx.tools.communication.CommunicationBase;
 import com.digitalglobe.gbdx.tools.communication.ErrorMessage;
-import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.digitalglobe.gbdx.tools.workflow.model.TaskList;
 import com.digitalglobe.gbdx.tools.workflow.model.Workflow;
 import com.digitalglobe.gbdx.tools.workflow.model.WorkflowList;
 import com.digitalglobe.gbdx.tools.workflow.model.task.Task;
 import com.google.gson.Gson;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +23,6 @@ public class WorkflowManager extends CommunicationBase {
     private static String baseUrl;
 
     public WorkflowManager() {
-        ConfigurationManager configurationManager = new ConfigurationManager();
-
         baseUrl = configurationManager.getBaseAPIUrl() + "/workflows/v1";
     }
 

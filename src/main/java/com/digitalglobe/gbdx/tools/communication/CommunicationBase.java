@@ -32,14 +32,14 @@ import org.apache.http.util.EntityUtils;
  */
 public class CommunicationBase {
 
-    private GBDXAuthManager gbdxAuthManager;
-    private ConfigurationManager configurationManager;
+    protected ConfigurationManager configurationManager;
 
     /**
      * Initializes the communication base.
      */
+    @SuppressWarnings("unused")
     protected CommunicationBase() {
-        gbdxAuthManager = new GBDXAuthManager();
+        GBDXAuthManager gbdxAuthManager = new GBDXAuthManager();
         configurationManager = new ConfigurationManager();
     }
 
@@ -79,7 +79,7 @@ public class CommunicationBase {
             HttpGet httpGet = new HttpGet(url);
 
             if (requiresAuth)
-                httpGet.addHeader("Authorization", "Bearer " + gbdxAuthManager.getAccessToken());
+                httpGet.addHeader("Authorization", "Bearer " + configurationManager.getAccessToken());
 
             try (CloseableHttpResponse getResponse = closeableHttpClient.execute(httpGet)) {
 
@@ -136,7 +136,7 @@ public class CommunicationBase {
             HttpPost httpPost = new HttpPost(url);
 
             if (requiresAuth)
-                httpPost.addHeader("Authorization", "Bearer " + gbdxAuthManager.getAccessToken());
+                httpPost.addHeader("Authorization", "Bearer " + configurationManager.getAccessToken());
 
             StringEntity stringEntity = new StringEntity(jsonString);
             stringEntity.setContentType("application/json");
@@ -176,7 +176,7 @@ public class CommunicationBase {
             HttpPut httpPut = new HttpPut(url);
 
             if (requiresAuth)
-                httpPut.addHeader("Authorization", "Bearer " + gbdxAuthManager.getAccessToken());
+                httpPut.addHeader("Authorization", "Bearer " + configurationManager.getAccessToken());
 
             StringEntity stringEntity = new StringEntity(jsonString);
             stringEntity.setContentType("application/json");
@@ -213,7 +213,7 @@ public class CommunicationBase {
             HttpDelete httpDelete = new HttpDelete(url);
 
             if (requiresAuth)
-                httpDelete.addHeader("Authorization", "Bearer " + gbdxAuthManager.getAccessToken());
+                httpDelete.addHeader("Authorization", "Bearer " + configurationManager.getAccessToken());
 
             try (CloseableHttpResponse response = closeableHttpClient.execute(httpDelete)) {
 

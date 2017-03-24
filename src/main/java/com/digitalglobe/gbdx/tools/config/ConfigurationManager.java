@@ -3,7 +3,8 @@ package com.digitalglobe.gbdx.tools.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Map;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,19 +18,42 @@ import org.slf4j.LoggerFactory;
 public class ConfigurationManager {
     private static final Logger log = LoggerFactory.getLogger( ConfigurationManager.class );
 
-    private static String authUrl = null;
-    private static String userName = null;
-    private static String password = null;
-    private static String clientId = null;
-    private static String clientSecret = null;
-    private static String environment = null;
-    private static String serviceBaseUrl = null;
-    private static String accessToken = null;
-    private static String tokenExpiration = null;
+    private static String authUrl;
+    private static String userName;
+    private static String password;
+    private static String clientId;
+    private static String clientSecret;
+    private static String environment;
+    private static String serviceBaseUrl;
+    private static String accessToken;
+    private static ZonedDateTime accessTokenExpiration;
 
     private static final String DEFAULT_BASE_URL = "https://geobigdata.io";
     private static final String DEFAULT_AUTH_URL = DEFAULT_BASE_URL + "/auth/v1/oauth/token/";
+
+    //
+    // ini definitions
+    //
     private static final String CONFIG_SECTION_NAME = "gbdx";
+    private static final String AUTH_URL_INI_NAME = "auth_url";
+    private static final String USER_NAME_INI_NAME = "user_name";
+    private static final String PASSWORD_INI_NAME = "user_password";
+    private static final String CLIENT_ID_INI_NAME = "client_id";
+    private static final String CLIENT_SECRET_INI_NAME = "client_secret";
+    private static final String SERVICE_BASE_URL_INI_NAME = "service_base_url";
+    private static final String ACCESS_TOKEN_EXPIRATION_INI_NAME = "access_token_expiration";
+    private static final String ACCESS_TOKEN_INI_NAME = "gbdx_token";
+
+    //
+    // env/system definitions
+    //
+    private static final String AUTH_URL_ENV_NAME = "GBDX_AUTH_URL";
+    private static final String USER_NAME_ENV_NAME = "GBDX_USERNAME";
+    private static final String PASSWORD_ENV_NAME = "GBDX_PASSWORD";
+    private static final String CLIENT_ID_ENV_NAME = "GBDX_CLIENT_ID";
+    private static final String CLIENT_SECRET_ENV_NAME = "GBDX_CLIENT_SECRET";
+    private static final String ACCESS_TOKEN_ENV_NAME = "GBDX_ACCESS_TOKEN";
+
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
     private static final Object lock = new Object();
 
@@ -56,12 +80,14 @@ public class ConfigurationManager {
      * set in the O/S environment or with a -D on the command line.
      * </p>
      *
-     * <p>If the configuration file does not exist then the parameters can also come from
-     * the operating system environment (i.e. <code>setenv</code>) and/or from Java system
-     * parameters (i.e. -D parameters on the Java command line).  Even if the file exists
-     * the parameters in it can be overridden on the command line or with environment variables.
-     * The priority is system property, then environment variable and then the configuration file.
+     * <p>
+     * The parameters can instead or in addition come from the operating system environment
+     * (i.e. <code>setenv</code>) and/or from Java system parameters (i.e. -D parameters on the
+     * Java command line).  Even if the file exists the parameters in it can be overridden on
+     * the command line or with environment variables. The priority is system property, then
+     * environment variable and then the configuration file.
      * </p>
+     *
      */
     public ConfigurationManager() {
         synchronized (lock) {
@@ -92,14 +118,16 @@ public class ConfigurationManager {
                         section = ini.get(CONFIG_SECTION_NAME);
 
                     if (section != null) {
-                        authUrl = section.get("auth_url");
-                        userName = section.get("user_name");
-                        password = section.get("user_password");
-                        clientId = section.get("client_id");
-                        clientSecret = section.get("client_secret");
-                        serviceBaseUrl = section.get("service_base_url");
-                        tokenExpiration = section.get("token_expiration");
-                        accessToken = section.get("access_token");
+                        authUrl = section.get(AUTH_URL_INI_NAME);
+                        userName = section.get(USER_NAME_INI_NAME);
+                        password = section.get(PASSWORD_INI_NAME);
+                        clientId = section.get(CLIENT_ID_INI_NAME);
+                        clientSecret = section.get(CLIENT_SECRET_INI_NAME);
+                        serviceBaseUrl = section.get(SERVICE_BASE_URL_INI_NAME);
+                        String tokenExpirationString = section.get(ACCESS_TOKEN_EXPIRATION_INI_NAME);
+                        if(tokenExpirationString != null)
+                            accessTokenExpiration =  ZonedDateTime.parse(tokenExpirationString, DateTimeFormatter.ISO_ZONED_DATE_TIME);
+                        accessToken = section.get(ACCESS_TOKEN_INI_NAME);
                     } else {
                         log.warn("No \"" + configSection + "\" section in the INI file \"" + configFile.getAbsolutePath() +
                                 "\" - falling back to environment / system variables");
@@ -110,11 +138,12 @@ public class ConfigurationManager {
                 }
             }
 
-            authUrl = getEnvOrSystemVar("GBDX_AUTH_URL", authUrl);
-            userName = getEnvOrSystemVar("GBDX_USERNAME", userName);
-            password = getEnvOrSystemVar("GBDX_PASSWORD", password);
-            clientId = getEnvOrSystemVar("GBDX_CLIENT_ID", clientId);
-            clientSecret = getEnvOrSystemVar("GBDX_CLIENT_SECRET", clientSecret);
+            authUrl = getEnvOrSystemVar(AUTH_URL_ENV_NAME, authUrl);
+            userName = getEnvOrSystemVar(USER_NAME_ENV_NAME, userName);
+            password = getEnvOrSystemVar(PASSWORD_ENV_NAME, password);
+            clientId = getEnvOrSystemVar(CLIENT_ID_ENV_NAME, clientId);
+            clientSecret = getEnvOrSystemVar(CLIENT_SECRET_ENV_NAME, clientSecret);
+            accessToken = getEnvOrSystemVar(ACCESS_TOKEN_ENV_NAME, accessToken);
 
             if (authUrl == null)
                 throw new IllegalStateException("no authorization url configured");
@@ -192,13 +221,33 @@ public class ConfigurationManager {
     }
 
     /**
-     * Get the token expiration string if it exists.
+     * Set the access token.
      *
-     * @return the token expiration string.
+     * @param token the new access token
      *
      */
-    public String getTokenExpiration() {
-        return tokenExpiration;
+    public void setAccessToken(String token) {
+        accessToken = token;
+    }
+
+    /**
+     * Get the access token expiration if it exists.
+     *
+     * @return the token expiration.
+     *
+     */
+    public ZonedDateTime getAccessTokenExpiration() {
+        return accessTokenExpiration;
+    }
+
+    /**
+     * Set the access token expiration.
+     *
+     * @param expiration the expiration of the token
+     *
+     */
+    public void setAccessTokenExpiration(ZonedDateTime expiration) {
+        accessTokenExpiration = expiration;
     }
 
 
@@ -225,10 +274,7 @@ public class ConfigurationManager {
      * @return boolean that, if true, we're running in production
      */
     public boolean runningInProduction() {
-        if( serviceBaseUrl != null && serviceBaseUrl.equals(DEFAULT_BASE_URL) )
-            return true;
-
-        return false;
+        return (serviceBaseUrl != null) && serviceBaseUrl.equals(DEFAULT_BASE_URL);
     }
 
     /**
@@ -259,10 +305,8 @@ public class ConfigurationManager {
     /**
      * Saves all parameters to the config file.  Any existing parameters are overwritten.
      *
-     * @param values the new values to save.
-     *
      */
-    public void saveUpdatedParameters( Map<String, String> values ) {
+    public void saveUpdatedParameters() {
 
         File configFile = new File(System.getProperty("user.home") +
                 System.getProperty("file.separator") + ".gbdx-config");
@@ -283,8 +327,15 @@ public class ConfigurationManager {
                 if( section == null )
                     section = ini.get(CONFIG_SECTION_NAME);
 
-                for( String nextKey: values.keySet() ) {
-                    section.put(nextKey, values.get(nextKey));
+                //
+                // only token and token expiration can be set here - only worry about those two
+                //
+                if( getAccessToken() != null ) {
+                    section.put(ACCESS_TOKEN_INI_NAME, getAccessToken());
+
+                    if (getAccessTokenExpiration() != null)
+                        section.put(ACCESS_TOKEN_EXPIRATION_INI_NAME,
+                                    DateTimeFormatter.ISO_ZONED_DATE_TIME.format(getAccessTokenExpiration()));
                 }
 
                 ini.store(configFile);

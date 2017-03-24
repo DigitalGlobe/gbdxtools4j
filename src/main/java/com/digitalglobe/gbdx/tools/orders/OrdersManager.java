@@ -4,26 +4,18 @@ import java.io.IOException;
 import java.util.List;
 
 import com.digitalglobe.gbdx.tools.communication.CommunicationBase;
-import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.digitalglobe.gbdx.tools.orders.model.OrderRequest;
 import com.digitalglobe.gbdx.tools.orders.model.OrderResult;
 import com.google.gson.Gson;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * Manages the interface with the workflow system.
  */
 public class OrdersManager extends CommunicationBase {
-    private static final Logger log = LoggerFactory.getLogger(OrdersManager.class);
-
     private static String baseUrl;
 
     public OrdersManager() {
-        ConfigurationManager configurationManager = new ConfigurationManager();
-
         baseUrl = configurationManager.getBaseAPIUrl() + "/orders/v2";
     }
 

@@ -12,10 +12,8 @@ import com.digitalglobe.gbdx.tools.catalog.model.TraverseRequest;
 import com.digitalglobe.gbdx.tools.catalog.model.Type;
 import com.digitalglobe.gbdx.tools.communication.CommunicationBase;
 import com.digitalglobe.gbdx.tools.communication.ErrorMessage;
-import com.digitalglobe.gbdx.tools.config.ConfigurationManager;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -28,8 +26,6 @@ public class CatalogManager extends CommunicationBase {
 
 
     public CatalogManager() {
-        ConfigurationManager configurationManager = new ConfigurationManager();
-
         baseUrl = configurationManager.getBaseAPIUrl() + "/catalog/v1";
     }
 
