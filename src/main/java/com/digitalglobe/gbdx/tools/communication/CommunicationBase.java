@@ -151,7 +151,17 @@ public class CommunicationBase {
                         throw new SecurityException("Your credentials are not able to access this resource" );
                     }
 
-                    throw new IOException("HTTP GET got non-200 response of " + httpResponseCode );
+                    String errorBody = null;
+
+                    if( postResponse.getEntity() != null ) {
+                        errorBody = EntityUtils.toString(postResponse.getEntity());
+                    }
+
+                    String errorMessage = "HTTP POST got non-200 response of " + httpResponseCode;
+                    if( errorBody != null )
+                        errorMessage += " with response body of \"" + errorBody + "\"";
+
+                    throw new IOException(errorMessage);
                 }
 
                 IOUtils.copy(postResponse.getEntity().getContent(), outputStream);

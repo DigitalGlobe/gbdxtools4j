@@ -107,7 +107,7 @@ public class ConfigurationManager {
 
                     String configSection = CONFIG_SECTION_NAME;
                     if (environment != null) {
-                        configSection = CONFIG_SECTION_NAME + "-" + environment;
+                        configSection = environment;
                     }
 
                     System.out.println("using configSection \"" + configSection + "\"");
@@ -320,7 +320,7 @@ public class ConfigurationManager {
 
                 String configSection = CONFIG_SECTION_NAME;
                 if( environment != null )
-                    configSection = CONFIG_SECTION_NAME + "-" + environment;
+                    configSection = environment;
 
                 Ini.Section section = ini.get(configSection);
 
