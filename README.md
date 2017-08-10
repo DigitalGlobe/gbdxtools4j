@@ -53,3 +53,18 @@ The priority is system property, then environment variable and then the configur
 <li> For workflows, take a look at the <a href="docs/workflow.md">Workflow</a> docs.
 <li> For catalog, take a look at the <a href="docs/catalog.md">Catalog</a> docs.
 </ul>
+
+
+## Release
+```
+brew install gpg
+gpg --list-keys
+ln -s ./gpg /usr/local/bin/gpg2
+export GPG_TTY=$(tty)
+```
+
+fix github url in release.properties
+```
+mvn release:prepare
+mvn release:perform
+```
