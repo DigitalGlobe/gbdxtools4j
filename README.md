@@ -62,8 +62,10 @@ gpg --list-keys
 ln -s ./gpg /usr/local/bin/gpg2
 export GPG_TTY=$(tty)
 ```
+Use existing sonatype/ nexus repository credentials in settings.xml or have new ones created and attached to the 
+com.digitalglobe.gbdx.tools repository.
 
-fix github url in release.properties
+Fix github url in release.properties
 ```
 mvn release:prepare
 mvn release:perform
