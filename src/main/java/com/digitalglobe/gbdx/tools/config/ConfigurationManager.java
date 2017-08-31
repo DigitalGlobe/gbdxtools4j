@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ini4j.Config;
 import org.ini4j.Ini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,8 @@ public class ConfigurationManager {
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
     private static final Object lock = new Object();
 
+    private static final Config defaultConfig = new Config();
+
 
     /**
      * Reads from the GBDX configuration file to get security related information.  The file
@@ -94,6 +97,11 @@ public class ConfigurationManager {
             if( initialized.get() )
                 return;
 
+            defaultConfig.setEscape(false);
+            defaultConfig.setEscapeNewline(false);
+            defaultConfig.setEscapeKeyOnly(false);
+            defaultConfig.setStrictOperator(false);
+
             File configFile = new File(System.getProperty("user.home") +
                     System.getProperty("file.separator") + ".gbdx-config");
 
@@ -103,6 +111,8 @@ public class ConfigurationManager {
             if (configFile.exists() && configFile.canRead()) {
                 try (FileInputStream fis = new FileInputStream(configFile)) {
                     Ini ini = new Ini();
+
+                    ini.setConfig(defaultConfig);
                     ini.load(fis);
 
                     String configSection = CONFIG_SECTION_NAME;
@@ -316,6 +326,7 @@ public class ConfigurationManager {
         if (configFile.exists() && configFile.canRead()) {
             try {
                 Ini ini = new Ini();
+                ini.setConfig(defaultConfig);
                 ini.load(configFile);
 
                 String configSection = CONFIG_SECTION_NAME;
