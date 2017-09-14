@@ -65,8 +65,13 @@ export GPG_TTY=$(tty)
 Use existing sonatype/ nexus repository credentials in settings.xml or have new ones created and attached to the 
 com.digitalglobe.gbdx.tools repository.
 
-Fix github url in release.properties
+Fix github url in release.properties, scm.url=scm\:git\:https\://github.com/digitalglobe/gbdxtools4j.git
 ```
 mvn release:prepare
 mvn release:perform
 ```
+
+Promote release
+https://oss.sonatype.org/index.html#stagingRepositories
+close
+release

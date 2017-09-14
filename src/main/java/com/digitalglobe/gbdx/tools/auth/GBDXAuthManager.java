@@ -54,7 +54,7 @@ public class GBDXAuthManager {
                 //
                 // do we have at least an hour left on the token?
                 //
-                if( now.plusSeconds(3600).compareTo(tokenExpiration) > 1 )
+                if( now.plusSeconds(3600).compareTo(tokenExpiration) >= 1 )
                     getNewToken();
             }
 
