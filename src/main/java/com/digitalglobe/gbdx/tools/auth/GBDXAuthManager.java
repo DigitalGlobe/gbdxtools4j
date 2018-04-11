@@ -72,9 +72,7 @@ public class GBDXAuthManager {
             parametersBody.add(new BasicNameValuePair("password", configurationManager.getPassword()));
             post.setEntity(new UrlEncodedFormEntity(parametersBody));
 
-            post.addHeader("Authorization",
-                    "Basic " + Base64.encodeBase64String((configurationManager.getClientId()
-                             + ":" + configurationManager.getClientSecret()).getBytes()));
+            post.addHeader("Content-Type","application/x-www-form-urlencoded");
 
             try( CloseableHttpResponse response = httpclient.execute(post)) {
                 int httpResponseCode = response.getStatusLine().getStatusCode();

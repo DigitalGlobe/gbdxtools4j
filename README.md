@@ -33,8 +33,6 @@ to the GBDX system.  The file is named ".gbdx-config".  It is a very simple INI 
  file that looks like:
 <pre>
     [gbdx]
-        client_id = &lt;client id from the GBDX web application&gt;
-        client_secret = &lt;client secret from the GBDX web application&gt;
         user_name = &lt;your GBDX user name&gt;
         user_password = &lt;your GBDX password&gt;
 </pre>

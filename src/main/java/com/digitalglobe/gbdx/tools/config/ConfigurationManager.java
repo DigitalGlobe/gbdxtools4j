@@ -22,8 +22,6 @@ public class ConfigurationManager {
     private static String authUrl;
     private static String userName;
     private static String password;
-    private static String clientId;
-    private static String clientSecret;
     private static String environment;
     private static String serviceBaseUrl;
     private static String accessToken;
@@ -39,8 +37,6 @@ public class ConfigurationManager {
     private static final String AUTH_URL_INI_NAME = "auth_url";
     private static final String USER_NAME_INI_NAME = "user_name";
     private static final String PASSWORD_INI_NAME = "user_password";
-    private static final String CLIENT_ID_INI_NAME = "client_id";
-    private static final String CLIENT_SECRET_INI_NAME = "client_secret";
     private static final String SERVICE_BASE_URL_INI_NAME = "service_base_url";
     private static final String ACCESS_TOKEN_EXPIRATION_INI_NAME = "access_token_expiration";
     private static final String ACCESS_TOKEN_INI_NAME = "gbdx_token";
@@ -51,8 +47,6 @@ public class ConfigurationManager {
     private static final String AUTH_URL_ENV_NAME = "GBDX_AUTH_URL";
     private static final String USER_NAME_ENV_NAME = "GBDX_USERNAME";
     private static final String PASSWORD_ENV_NAME = "GBDX_PASSWORD";
-    private static final String CLIENT_ID_ENV_NAME = "GBDX_CLIENT_ID";
-    private static final String CLIENT_SECRET_ENV_NAME = "GBDX_CLIENT_SECRET";
     private static final String ACCESS_TOKEN_ENV_NAME = "GBDX_ACCESS_TOKEN";
 
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -67,8 +61,6 @@ public class ConfigurationManager {
      * file that looks like:
      * <pre>
      *   [gbdx]
-     *       client_id = &lt;client id from the GBDX web application&gt;
-     *       client_secret = &lt;client secret from the GBDX web application&gt;
      *       user_name = &lt;your GBDX user name&gt;
      *       user_password = &lt;your GBDX password&gt;
      * </pre>
@@ -131,8 +123,6 @@ public class ConfigurationManager {
                         authUrl = section.get(AUTH_URL_INI_NAME);
                         userName = section.get(USER_NAME_INI_NAME);
                         password = section.get(PASSWORD_INI_NAME);
-                        clientId = section.get(CLIENT_ID_INI_NAME);
-                        clientSecret = section.get(CLIENT_SECRET_INI_NAME);
                         serviceBaseUrl = section.get(SERVICE_BASE_URL_INI_NAME);
                         String tokenExpirationString = section.get(ACCESS_TOKEN_EXPIRATION_INI_NAME);
                         if(tokenExpirationString != null)
@@ -151,8 +141,6 @@ public class ConfigurationManager {
             authUrl = getEnvOrSystemVar(AUTH_URL_ENV_NAME, authUrl);
             userName = getEnvOrSystemVar(USER_NAME_ENV_NAME, userName);
             password = getEnvOrSystemVar(PASSWORD_ENV_NAME, password);
-            clientId = getEnvOrSystemVar(CLIENT_ID_ENV_NAME, clientId);
-            clientSecret = getEnvOrSystemVar(CLIENT_SECRET_ENV_NAME, clientSecret);
             accessToken = getEnvOrSystemVar(ACCESS_TOKEN_ENV_NAME, accessToken);
 
             if (authUrl == null)
@@ -163,12 +151,6 @@ public class ConfigurationManager {
 
             if (password == null)
                 throw new IllegalStateException("no password configured");
-
-            if (clientId == null)
-                throw new IllegalStateException("no client id configured");
-
-            if (clientSecret == null)
-                throw new IllegalStateException("no client secret configured");
 
             initialized.set(true);
         }
@@ -200,24 +182,6 @@ public class ConfigurationManager {
      */
     public String getPassword() {
         return password;
-    }
-
-    /**
-     * Get the client id used for authentication.
-     *
-     * @return the client id
-     */
-    public String getClientId() {
-        return clientId;
-    }
-
-    /**
-     * Get the client secret used for authentication
-     *
-     * @return the client secret
-     */
-    public String getClientSecret() {
-        return clientSecret;
     }
 
     /**
